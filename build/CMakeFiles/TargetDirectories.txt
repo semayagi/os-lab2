@@ -1,0 +1,5 @@
+/home/semayagi/Desktop/os-lab2/build/CMakeFiles/child1.dir
+/home/semayagi/Desktop/os-lab2/build/CMakeFiles/child2.dir
+/home/semayagi/Desktop/os-lab2/build/CMakeFiles/parent.dir
+/home/semayagi/Desktop/os-lab2/build/CMakeFiles/edit_cache.dir
+/home/semayagi/Desktop/os-lab2/build/CMakeFiles/rebuild_cache.dir

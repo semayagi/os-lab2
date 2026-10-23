@@ -5,7 +5,7 @@ stdin → parent → pipe[0] → child1 → pipe[1] → child2 → pipe[2] → p
 
 
 */
-#define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 200809L // Portable Operating System Interface
 
 #include <stdio.h>     // getline, printf, stdin
 #include <stdlib.h>    // free
@@ -19,6 +19,7 @@ int main(void)
     pipe(pipes[0]); // создаёт pipes[0][0] (чтение) и pipes[0][1] (запись)
     pipe(pipes[1]);
     pipe(pipes[2]);
+    // когда child записал в pipes[i][1], parent может прочитать из pipes[i][0]
 
     pid_t child1_pid = fork();
     // Отныне код выполняется двумя процессами: родительский и дочерний
@@ -42,6 +43,7 @@ int main(void)
     }
 
     pid_t child2_pid = fork();
+    // Снова код выполняется родителем и дочерним процессом
     if (child2_pid == 0)
     {
         dup2(pipes[1][0], STDIN_FILENO);
@@ -67,22 +69,21 @@ int main(void)
     size_t capacity = 0; // размер выделенного буфера
     ssize_t length;
 
-    length = getline(&line, &capacity, stdin);
-    if (length != -1)
+    while ((length = getline(&line, &capacity, stdin)) != -1)
     {
         write(pipes[0][1], line, (size_t)length);
-        close(pipes[0][1]); // дочерние циклы while ((c = getchar()) != EOF) { ... } завершаются, получив EOF
+    }
 
-        char buffer[2];
+    close(pipes[0][1]); // дочерние циклы while ((c = getchar()) != EOF) { ... } завершаются, получив EOF
 
-        ssize_t received;
-        // Цикл для случая, когда child2 пишет в pipe[2] больше, чем 4096 символов
-        while ((received = read(pipes[2][0], buffer, sizeof(buffer) - 1)) > 0)
-        {
-            buffer[received] = '\0';
-            printf("%s", buffer);
-            fflush(stdout);
-        }
+    char buffer[4096];
+
+    ssize_t received;
+    // Цикл нужен для случая, когда child2 пишет в pipe[2] больше, чем 4096 символов
+    while ((received = read(pipes[2][0], buffer, sizeof(buffer) - 1)) > 0)
+    {
+        buffer[received] = '\0';
+        printf("%s", buffer);
     }
 
     free(line);
@@ -95,3 +96,5 @@ int main(void)
 
     return 0;
 }
+
+// cmake

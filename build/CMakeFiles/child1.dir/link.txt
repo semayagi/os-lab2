@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/child1.dir/inc/child1.c.o -o child1 
